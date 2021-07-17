@@ -1,4 +1,7 @@
 import { Node } from "@babylonjs/core";
+import * as BABYLON from "@babylonjs/core/Legacy/legacy";
+import { fromScene } from "../tools";
+import {MeshBuilder,Vector3,Mesh} from "@babylonjs/core";
 
 /**
  * This represents a script that is attached to a node in the editor.
@@ -23,6 +26,8 @@ export default class MyScript extends Node {
      * Override constructor.
      * @warn do not fill.
      */
+     @fromScene("ground")
+     __ground : Mesh;
     // @ts-ignore ignoring the super call as we don't want to re-init
     protected constructor() { }
 
@@ -38,7 +43,33 @@ export default class MyScript extends Node {
      * Called on the scene starts.
      */
     public onStart(): void {
-        // ...
+        let __scene = this._scene;
+        let light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), this._scene);
+        light.intensity = 0.7;
+        let wcf =async function WebXRConfigration():Promise<void>{
+            const env = __scene.createDefaultEnvironment();
+            let xr = await __scene.createDefaultXRExperienceAsync({
+                   floorMeshes: [env.ground]
+            });
+
+            //changed position when WebXR immersive-vr mode is active. 
+            xr.baseExperience.camera.position.set(-3.8, 2, 11);
+
+            xr.teleportation.addFloorMesh(this.__ground);
+            xr.pointerSelection.attach();
+            
+
+            __scene.postProcessRenderPipelineManager.detachCamerasFromRenderPipeline("ssao", __scene.activeCamera);
+            __scene.postProcessRenderPipelineManager.supportedPipelines.forEach(pp=>{
+                __scene.postProcessRenderPipelineManager.detachCamerasFromRenderPipeline(
+                    pp.name,
+                    __scene.activeCamera
+                );
+           });
+
+        }
+
+        wcf();
     }
 
     /**

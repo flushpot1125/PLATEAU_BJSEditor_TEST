@@ -1,4 +1,5 @@
 import { Node } from "@babylonjs/core";
+import { Mesh } from "@babylonjs/core";
 /**
  * This represents a script that is attached to a node in the editor.
  * Available nodes are:
@@ -22,6 +23,7 @@ export default class MyScript extends Node {
      * Override constructor.
      * @warn do not fill.
      */
+    __ground: Mesh;
     protected constructor();
     /**
      * Called on the node is being initialized.
